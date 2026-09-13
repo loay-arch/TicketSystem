@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>My first page</title>
+</head>
+<body>
+<div id="main-page">
+  <button onclick="departmentsPage()"> Departments </button>
+  <button onclick="employeesPage()"> Employees</button>
+  <button onclick="ticketsPage()"> Tickets</button>
+</div>
+
+<div id="dep-buttons" style="display: none" >
+  <button onclick="addDepartmentPage()">Add a department</button>
+  <button onclick="deleteDepartmentPage()">Delete a department</button>
+  <button onclick="changeDepartmentnamePage()">Change a department name</button>
+</div>
+
+<div id="emp-buttons" style="display: none">
+  <button onclick="addEmployeePage()">Add an employee</button>
+  <button onclick="deleteEmployeePage()">Delete an employee</button>
+</div>
+
+<div id="ticket-buttons" style="display: none">
+  <button onclick="addTicketPage()">Add a ticket</button>
+  <button onclick="deleteTicketPage()">Delete a ticket</button>
+</div>
+
+<div id="adding-department" style="display: none">
+  <h3>Add new department</h3>
+  <input id="dept-name-input" type="text" placeholder="Department name">
+  <button onclick="submitDepartment()">Add</button>
+</div>
+
+<div id="changing-department-name" style="display: none">
+  <h3> please write down the department name you want to change and the new name of the department</h3>
+  <input id="current-dept-name" type="text" placeholder="current department name">
+  <input id="new-dept-name" type="text" placeholder="new department name">
+  <button onclick="updateDeptName()">change name</button>
+</div>
+
+<div id="delete-department-page" style="display: none">
+  <h3> Insert the name of the department</h3>
+  <input id="dept-name-to-delete" type="text" placeholder="Department name">
+  <button onclick="deleteDepartment()"> delete department</button>
+</div>
+
+<div id="adding-employee" style="display: none">
+  <h3>Add new employee</h3>
+  <input id="emp-name-input" type="text" placeholder="Name">
+  <input id="emp-id-input" type="text" placeholder="ID">
+  <input id="emp-department-input" type="text" placeholder="Department">
+  <input id="emp-role-input" type="text" placeholder="Role">
+  <button onclick="submitEmployee()">Add</button>
+</div>
+
+<div id="delete-employee-page" style="display: none">
+  <h3>Insert the ID of the employee</h3>
+  <input id="emp-id-to-delete" type="text" placeholder="Employee ID">
+  <button onclick="deleteEmployee()">delete employee</button>
+</div>
+
+<div id="adding-ticket" style="display: none">
+  <h3>Add new ticket</h3>
+  <input id="ticket-id-input" type="text" placeholder="ID">
+  <input id="ticket-title-input" type="text" placeholder="Title">
+  <input id="ticket-created-by-input" type="text" placeholder="Created by">
+  <input id="ticket-created-at-input" type="text" placeholder="Created at">
+  <input id="ticket-description-input" type="text" placeholder="Description">
+  <input id="ticket-status-input" type="text" placeholder="Status">
+  <button onclick="submitTicket()">Add</button>
+</div>
+
+<div id="delete-ticket-page" style="display: none">
+  <h3>Insert the ID of the ticket</h3>
+  <input id="ticket-id-to-delete" type="text" placeholder="Ticket ID">
+  <button onclick="deleteTicket()">delete ticket</button>
+</div>
+
+<script>
+  function departmentsPage(){
+    document.getElementById("main-page").style.display = "none"
+    document.getElementById("dep-buttons").style.display = "block"
+  }
+  function employeesPage(){
+    document.getElementById("main-page").style.display = "none"
+    document.getElementById("emp-buttons").style.display = "block"
+    }
+
+    function addDepartmentPage(){
+      document.getElementById("dep-buttons").style.display = "none"
+      document.getElementById("adding-department").style.display = "block"
+    }
+    function submitDepartment() {
+      const name = document.getElementById("dept-name-input").value
+      fetch("http://127.0.0.1:8000/departments?department_name=" + name, {method: "POST"})
+    }
+
+      function changeDepartmentnamePage(){
+        document.getElementById("dep-buttons").style.display = "none"
+        document.getElementById("changing-department-name").style.display = "block"
+      }
+
+      function updateDeptName(){
+        const currentName = document.getElementById("current-dept-name").value
+        const newName = document.getElementById("new-dept-name").value
+        fetch("http://127.0.0.1:8000/departments/"+currentName+"?new_department_name=" + newName,{method: "PUT"})
+      }
+
+      function deleteDepartmentPage(){
+        document.getElementById("dep-buttons").style.display = "none"
+        document.getElementById("delete-department-page").style.display = "block"
+      }
+
+      function deleteDepartment(){
+        const name = document.getElementById("dept-name-to-delete").value
+        fetch("http://127.0.0.1:8000/departments/"+name,{method:"DELETE"})
+      }
+      function addEmployeePage() {
+        document.getElementById("emp-buttons").style.display = "none"
+        document.getElementById("adding-employee").style.display = "block"
+      }
+
+    function submitEmployee() {
+      const name = document.getElementById("emp-name-input").value
+      const id = document.getElementById("emp-id-input").value
+      const department = document.getElementById("emp-department-input").value
+      const role = document.getElementById("emp-role-input").value
+      fetch("http://127.0.0.1:8000/employees?name=" + name + "&id=" + id + "&department=" + department + "&role=" + role, {method: "POST"})
+    }
+
+    function deleteEmployeePage() {
+      document.getElementById("emp-buttons").style.display = "none"
+      document.getElementById("delete-employee-page").style.display = "block"
+    }
+
+
+    function deleteEmployee() {
+      const id = document.getElementById("emp-id-to-delete").value
+      fetch("http://127.0.0.1:8000/employees/" + id, {method: "DELETE"})
+    }
+
+    function ticketsPage(){
+  document.getElementById("main-page").style.display = "none"
+  document.getElementById("ticket-buttons").style.display = "block"
+}
+
+function addTicketPage(){
+  document.getElementById("ticket-buttons").style.display = "none"
+  document.getElementById("adding-ticket").style.display = "block"
+}
+
+function submitTicket(){
+  const id = document.getElementById("ticket-id-input").value
+  const title = document.getElementById("ticket-title-input").value
+  const createdBy = document.getElementById("ticket-created-by-input").value
+  const createdAt = document.getElementById("ticket-created-at-input").value
+  const description = document.getElementById("ticket-description-input").value
+  const status = document.getElementById("ticket-status-input").value
+  fetch("http://127.0.0.1:8000/tickets?id="+id+"&title="+title+"&created_by="+createdBy+"&created_at="+createdAt+"&description="+description+"&status="+status, {method: "POST"})
+}
+
+function deleteTicketPage() {
+  document.getElementById("ticket-buttons").style.display = "none"
+  document.getElementById("delete-ticket-page").style.display = "block"
+}
+function deleteTicket() {
+  const id = document.getElementById("ticket-id-to-delete").value
+  fetch("http://127.0.0.1:8000/tickets/" + id, {method: "DELETE"})
+}
+</script>
+</body>
+</html>
