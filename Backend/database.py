@@ -1,13 +1,13 @@
 import psycopg
-
+from credentials import host,port,dbname,user,password
 def get_connection():
     try:
         con = psycopg.connect(
-            host="localhost",
-            port=5432,
-            dbname="PersonalDB",
-            user="postgres",
-            password="NewPasswordHere"
+            host=host,
+            port=port,
+            dbname=dbname,
+            user=user,
+            password=password
         )
         return con
     except Exception as e:
