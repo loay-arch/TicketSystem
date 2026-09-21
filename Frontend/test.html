@@ -19,6 +19,7 @@
 <div id="emp-buttons" style="display: none">
   <button onclick="addEmployeePage()">Add an employee</button>
   <button onclick="deleteEmployeePage()">Delete an employee</button>
+  <button onclick="ticketAssigningPage()">Handle an open ticket</button>
 </div>
 
 <div id="ticket-buttons" style="display: none">
@@ -30,6 +31,7 @@
   <h3>Add new department</h3>
   <input id="dept-name-input" type="text" placeholder="Department name">
   <button onclick="submitDepartment()">Add</button>
+  <p id="adding-department-message"></p>
 </div>
 
 <div id="changing-department-name" style="display: none">
@@ -37,12 +39,14 @@
   <input id="current-dept-name" type="text" placeholder="current department name">
   <input id="new-dept-name" type="text" placeholder="new department name">
   <button onclick="updateDeptName()">change name</button>
+  <p id="updating-department-message"></p>
 </div>
 
 <div id="delete-department-page" style="display: none">
   <h3> Insert the name of the department</h3>
   <input id="dept-name-to-delete" type="text" placeholder="Department name">
   <button onclick="deleteDepartment()"> delete department</button>
+  <p id="deleting-department-message"></p>
 </div>
 
 <div id="adding-employee" style="display: none">
@@ -52,12 +56,19 @@
   <input id="emp-department-input" type="text" placeholder="Department">
   <input id="emp-role-input" type="text" placeholder="Role">
   <button onclick="submitEmployee()">Add</button>
+  <p id="adding-employee-message"></p>
 </div>
 
 <div id="delete-employee-page" style="display: none">
   <h3>Insert the ID of the employee</h3>
   <input id="emp-id-to-delete" type="text" placeholder="Employee ID">
   <button onclick="deleteEmployee()">delete employee</button>
+  <p id="deleting-employee-message"></p>
+</div>
+
+<div id="handling-ticket-page" style="display: none">
+  <button onclick="assignEmployeeToTicket()">Assign employee to ticket</button>
+  <button onclick="resolveTicketPage()">Resolve ticket</button>
 </div>
 
 <div id="adding-ticket" style="display: none">
@@ -65,16 +76,31 @@
   <input id="ticket-id-input" type="text" placeholder="ID">
   <input id="ticket-title-input" type="text" placeholder="Title">
   <input id="ticket-created-by-input" type="text" placeholder="Created by">
-  <input id="ticket-created-at-input" type="text" placeholder="Created at">
   <input id="ticket-description-input" type="text" placeholder="Description">
-  <input id="ticket-status-input" type="text" placeholder="Status">
   <button onclick="submitTicket()">Add</button>
+  <p id="adding-ticket-message"></p>
 </div>
 
 <div id="delete-ticket-page" style="display: none">
   <h3>Insert the ID of the ticket</h3>
   <input id="ticket-id-to-delete" type="text" placeholder="Ticket ID">
   <button onclick="deleteTicket()">delete ticket</button>
+  <p id="deleting-ticket-message"></p>
+</div>
+
+<div id="employee-ticket-assigning-page" style="display: none">
+  <h3>Pick the ticket id to handle</h3>
+  <input id="ticket_id" type="text" placeholder="ticket ID">
+  <input id="employee_id" type="text" placeholder="employee ID">
+  <button onclick="assignTicket()">Assign</button>
+  <p id="employee-ticket-assigning-message"></p>
+</div>
+
+<div id="ticket-resolving-page" style="display: none">
+  <h3>Pick the ticket id to mark as resolved</h3>
+  <input id="t_id" type="text" placeholder="ticket ID">
+  <button onclick="resolveTicket()">Resolve</button>
+   <p id="employee-ticket-resolving-message"></p>
 </div>
 
 <script>
@@ -91,9 +117,11 @@
       document.getElementById("dep-buttons").style.display = "none"
       document.getElementById("adding-department").style.display = "block"
     }
-    function submitDepartment() {
+  async function submitDepartment() {
       const name = document.getElementById("dept-name-input").value
-      fetch("http://127.0.0.1:8000/departments?department_name=" + name, {method: "POST"})
+      const response = await fetch("http://127.0.0.1:8000/departments?department_name=" + name, {method: "POST"})
+      const value = await response.json()
+      document.getElementById("adding-department-message").textContent = value.message
     }
 
       function changeDepartmentnamePage(){
@@ -101,10 +129,12 @@
         document.getElementById("changing-department-name").style.display = "block"
       }
 
-      function updateDeptName(){
+      async function updateDeptName(){
         const currentName = document.getElementById("current-dept-name").value
         const newName = document.getElementById("new-dept-name").value
-        fetch("http://127.0.0.1:8000/departments/"+currentName+"?new_department_name=" + newName,{method: "PUT"})
+        const response = await fetch("http://127.0.0.1:8000/departments/"+currentName+"?new_department_name=" + newName,{method: "PUT"})
+        const value = await response.json()
+        document.getElementById("updating-department-message").textContent = value.message
       }
 
       function deleteDepartmentPage(){
@@ -112,21 +142,25 @@
         document.getElementById("delete-department-page").style.display = "block"
       }
 
-      function deleteDepartment(){
+      async function deleteDepartment(){
         const name = document.getElementById("dept-name-to-delete").value
-        fetch("http://127.0.0.1:8000/departments/"+name,{method:"DELETE"})
+        const response = await fetch("http://127.0.0.1:8000/departments/"+name,{method:"DELETE"})
+        const value = await response.json()
+        document.getElementById("deleting-department-message").textContent = value.message
       }
       function addEmployeePage() {
         document.getElementById("emp-buttons").style.display = "none"
         document.getElementById("adding-employee").style.display = "block"
       }
 
-    function submitEmployee() {
+    async function submitEmployee() {
       const name = document.getElementById("emp-name-input").value
       const id = document.getElementById("emp-id-input").value
       const department = document.getElementById("emp-department-input").value
       const role = document.getElementById("emp-role-input").value
-      fetch("http://127.0.0.1:8000/employees?name=" + name + "&id=" + id + "&department=" + department + "&role=" + role, {method: "POST"})
+      const response = await fetch("http://127.0.0.1:8000/employees?name=" + name + "&id=" + id + "&department=" + department + "&role=" + role, {method: "POST"})
+      const value = await response.json()
+      document.getElementById("adding-employee-message").textContent = value.message
     }
 
     function deleteEmployeePage() {
@@ -135,9 +169,11 @@
     }
 
 
-    function deleteEmployee() {
+    async function deleteEmployee() {
       const id = document.getElementById("emp-id-to-delete").value
-      fetch("http://127.0.0.1:8000/employees/" + id, {method: "DELETE"})
+      const response = await fetch("http://127.0.0.1:8000/employees/" + id, {method: "DELETE"})
+      const value = await response.json()
+      document.getElementById("deleting-employee-message").textContent = value.message
     }
 
     function ticketsPage(){
@@ -150,24 +186,56 @@ function addTicketPage(){
   document.getElementById("adding-ticket").style.display = "block"
 }
 
-function submitTicket(){
+async function submitTicket(){
   const id = document.getElementById("ticket-id-input").value
   const title = document.getElementById("ticket-title-input").value
   const createdBy = document.getElementById("ticket-created-by-input").value
-  const createdAt = document.getElementById("ticket-created-at-input").value
   const description = document.getElementById("ticket-description-input").value
-  const status = document.getElementById("ticket-status-input").value
-  fetch("http://127.0.0.1:8000/tickets?id="+id+"&title="+title+"&created_by="+createdBy+"&created_at="+createdAt+"&description="+description+"&status="+status, {method: "POST"})
+  const response = await fetch("http://127.0.0.1:8000/tickets?id="+id+"&title="+title+"&created_by="+createdBy+"&description="+description, {method: "POST"})
+  const value = await response.json()
+  document.getElementById("adding-ticket-message").textContent = value.message
 }
 
 function deleteTicketPage() {
   document.getElementById("ticket-buttons").style.display = "none"
   document.getElementById("delete-ticket-page").style.display = "block"
 }
-function deleteTicket() {
+async function deleteTicket() {
   const id = document.getElementById("ticket-id-to-delete").value
-  fetch("http://127.0.0.1:8000/tickets/" + id, {method: "DELETE"})
+  const response = await fetch("http://127.0.0.1:8000/tickets/" + id, {method: "DELETE"})
+  const value = await response.json()
+  document.getElementById("deleting-ticket-message").textContent = value.message
 }
+
+function ticketAssigningPage(){
+    document.getElementById("emp-buttons").style.display = "none"
+    document.getElementById("handling-ticket-page").style.display = "block"
+}
+
+function assignEmployeeToTicket(){
+    document.getElementById("handling-ticket-page").style.display = "none"
+    document.getElementById("employee-ticket-assigning-page").style.display = "block"
+}
+function resolveTicketPage(){
+    document.getElementById("handling-ticket-page").style.display = "none"
+    document.getElementById("ticket-resolving-page").style.display = "block"
+}
+
+async function assignTicket(){
+    const ticketID = document.getElementById("ticket_id").value
+    const empID = document.getElementById("employee_id").value
+    const response = await fetch("http://127.0.0.1:8000/tickets/" + ticketID + "/assign?employee_id=" + empID, {method:"POST"})
+    const value = await response.json()
+    document.getElementById("employee-ticket-assigning-message").textContent = value.message
+}
+
+async function resolveTicket(){
+    const ticketID = document.getElementById("t_id").value
+    const response = await fetch("http://127.0.0.1:8000/tickets/" + ticketID, {method: "POST"})
+    const value = await response.json()
+    document.getElementById("employee-ticket-resolving-message").textContent = value.message
+}
+
 </script>
 </body>
 </html>
