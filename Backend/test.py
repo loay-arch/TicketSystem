@@ -1,9 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-import Status
-
+import StatusAndRoles
+import hashlib
 import database
-
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
@@ -11,6 +10,13 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.post("/login")
+def log_in(user_id, password):
+    h = hashlib.sha256()
+    h.update(password.encode("utf-8"))
+    return database.verify_employee(user_id, h.hexdigest())
+
 
 @app.post("/departments")
 def add_Department(department_name):
@@ -29,8 +35,10 @@ def get_departments():
     return database.get_Departments()
 
 @app.post("/employees")
-def add_Employee(name,id , department, role):
-    return database.add_Employee(name, id, department, role)
+def add_Employee(name, id, department, role, password):
+    h = hashlib.sha256()
+    h.update(password.encode("utf-8"))
+    return database.add_Employee(name, id, department, role, h.hexdigest())
 
 @app.delete("/employees/{id}")
 def delete_employee(id):
@@ -56,10 +64,10 @@ def assign_ticket_to_employee(employee_id, ticket_id):
     result = database.assign_ticket_to_employee(employee_id, ticket_id)
     if result["status"] == False:
         return result
-    result = database.update_ticket_status(ticket_id,Status.Status.IN_PROGRESS)
+    result = database.update_ticket_status(ticket_id,StatusAndRoles.Status.IN_PROGRESS)
     if result["status"] == False:
         return result
-    result = database.update_ticket_employee_status(employee_id,Status.Status.UNAVAILABLE)
+    result = database.update_ticket_employee_status(employee_id,StatusAndRoles.Status.UNAVAILABLE)
     if result["status"] == False:
         return result
     return {"status": True, "message": "Ticket assigned to employee successfully"}
@@ -74,9 +82,11 @@ def resolve_ticket(ticket_id):
         return result
     ticket = result["ticket"]
     emp_id = ticket[7]
-    result = database.update_ticket_employee_status(emp_id,Status.Status.AVALIABLE)
+    result = database.update_ticket_employee_status(emp_id,StatusAndRoles.Status.AVALIABLE)
     if result["status"] == False:
         return result
     return {"status": True, "message": "Ticket resolved successfully"}
+
+
 
 

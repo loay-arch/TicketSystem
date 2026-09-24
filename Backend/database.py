@@ -1,7 +1,7 @@
 import psycopg
 from credentials import host,port,dbname,user,password
 from datetime import datetime
-import Status
+import StatusAndRoles
 def get_connection():
     try:
         con = psycopg.connect(
@@ -80,13 +80,13 @@ def get_Departments():
         con.close()
 
 
-def  add_Employee(name,id , department, role):
+def  add_Employee(name,id , department, role, password):
     con = get_connection()
     if con is None:
         return False
     try:
         cur = con.cursor()
-        cur.execute("INSERT INTO employees (id, name, department_name, role) VALUES (%s, %s, %s, %s)",(id, name, department, role))
+        cur.execute("INSERT INTO employees (id, name, department_name, role, hashed_password) VALUES (%s, %s, %s, %s, %s)",(id, name, department, role, password))
         con.commit()
         return {"status": True, "message": "Successfully added employee"}
     except psycopg.errors.UniqueViolation:
@@ -114,6 +114,24 @@ def delete_employee(id):
     finally:
         con.close()
 
+
+def verify_employee(id,password):
+    con = get_connection()
+    if con is None:
+        return False
+    try:
+        cur = con.cursor()
+        cur.execute("SELECT * FROM employees WHERE id=%s AND hashed_password=%s", (id,password,))
+        employee = cur.fetchone()
+        if employee is None:
+            return {"status": False, "message": "Employee id or password incorrect"}
+        return {"status": True, "role": employee[2]}
+    except Exception as e:
+        return {"status": False, "message": str(e)}
+    finally:
+        con.close()
+
+
 def get_Employees():
     con = get_connection()
     if con is None:
@@ -134,7 +152,7 @@ def add_Ticket(id, title, created_by, description):
         return False
     try:
         cur = con.cursor()
-        cur.execute("INSERT INTO tickets (id, title, created_by, created_at, description, status) VALUES (%s, %s, %s, %s, %s, %s)",(id, title, created_by,datetime.now(), description, Status.Status.OPEN))
+        cur.execute("INSERT INTO tickets (id, title, created_by, created_at, description, status) VALUES (%s, %s, %s, %s, %s, %s)",(id, title, created_by,datetime.now(), description, StatusAndRoles.Status.OPEN))
         con.commit()
         return {"status": True, "message": "Successfully added ticket"}
     except psycopg.errors.UniqueViolation:
@@ -230,7 +248,7 @@ def resolve_ticket(ticket_id):
         return False
     try:
         cur = con.cursor()
-        cur.execute("UPDATE tickets set status=%s, resolved_at = %s WHERE id=%s", (Status.Status.RESOLVED,datetime.now() ,ticket_id))
+        cur.execute("UPDATE tickets set status=%s, resolved_at = %s WHERE id=%s", (StatusAndRoles.Status.RESOLVED,datetime.now() ,ticket_id))
         if cur.rowcount == 0:
             return {"status": False, "message": "Ticket does not exist"}
         con.commit()
